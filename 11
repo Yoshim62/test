@@ -1,0 +1,259 @@
+import requests
+import pandas as pd
+from datetime import datetime, date, timedelta
+import time
+
+today = datetime.today()
+
+from datetime import datetime, timedelta
+
+# 日付のリスト生成()
+date_list = [today + timedelta(days=i) for i in range(31)]
+# 文字列に変換
+date_str_list = [d.strftime("%Y-%m-%d") for d in date_list]
+print(date_str_list)
+
+tomorrow = today + timedelta(days=1)
+
+from datetime import datetime, timedelta
+
+# 日付のリスト生成()
+date_list2 = [tomorrow + timedelta(days=e) for e in range(31)]
+# 文字列に変換
+date_str_list2 = [d.strftime("%Y-%m-%d") for d in date_list2]
+print(date_str_list2)
+
+toda= date_str_list[0]
+
+for tod in toda:
+    print(tod)
+
+tomorrow = date_str_list2[0]
+
+for tom in tomorrow:
+    print(tom)
+
+page_list = [1,2,3,4]
+ad_list = [1,2,3,4]
+
+REQUEST_URL ='https://app.rakuten.co.jp/services/api/Travel/VacantHotelSearch/20170426'
+APP_ID = '1091040642048814253'
+
+
+params = {
+    'format': 'json',
+    'page': page_list[0],
+    'largeClassCode': 'japan',
+    'middleClassCode': 'hiroshima',
+    'smallClassCode': 'hiroshima',
+    'checkinDate': toda,
+    'checkoutDate': tomorrow,
+    'adultNum': ad_list[0],
+    'squeezeCondition': 'breakfast',
+    'sort': '+roomCharge',
+    'applicationId': APP_ID
+}
+
+res = requests.get(REQUEST_URL, params)
+result = res.json()
+
+hotel_info = result['hotels'][0]['hotel'][0]['hotelBasicInfo']
+hotel_info2 = result['hotels'][0]['hotel'][1]['roomInfo'][0]['roomBasicInfo']
+hotel_info3 = result['hotels'][0]['hotel'][1]['roomInfo'][1]['dailyCharge']
+
+hotel_info = result['hotels'][0]['hotel'][0]['hotelBasicInfo']
+pd.DataFrame(hotel_info, index=[0])
+
+df = pd.DataFrame()
+hotels = result['hotels']
+
+for i, hotel in enumerate(hotels):   
+    hotel_info = hotel['hotel'][0]['hotelBasicInfo']
+    _df = pd.DataFrame(hotel_info, index=[i])
+    df = df.append(_df)
+
+df.columns
+
+df[['hotelNo', 'hotelName','reviewCount','reviewAverage']]
+
+df2 = pd.DataFrame()
+hotels2 = result['hotels']
+
+for i, hotel2 in enumerate(hotels2):   
+    hotel_info2 = hotel2['hotel'][1]['roomInfo'][0]['roomBasicInfo']
+    _df2 = pd.DataFrame(hotel_info2, index=[i])
+    df2 = df2.append(_df2)
+
+df2.columns
+
+df2[['roomName', 'planId', 'planName','withBreakfastFlag',
+       'breakfastSelectFlag', 'reserveUrl', 'salesformFlag']]
+
+df3 = pd.DataFrame()
+hotels3 = result['hotels']
+
+for i, hotel3 in enumerate(hotels3):   
+    hotel_info3 = hotel3['hotel'][1]['roomInfo'][1]['dailyCharge']
+    _df3 = pd.DataFrame(hotel_info3, index=[i])
+    df3 = df3.append(_df3)
+
+df_concat_multi = pd.concat([df, df2, df3],axis=1)
+
+df_concat_multi.to_csv('test.csv')
+
+df_concat_multi.columns
+
+dfcm = df_concat_multi[['hotelName','planListUrl',
+       'address2', 'telephoneNo', 'faxNo', 'access','reviewCount', 'reviewAverage',
+       'roomClass', 'roomName','planName',
+       'pointRate','withBreakfastFlag',
+       'breakfastSelectFlag','salesformFlag',
+       'stayDate', 'rakutenCharge', 'total', 'chargeFlag']]
+
+params2 = {
+    'format': 'json',
+    'page': page_list[1],
+    'largeClassCode': 'japan',
+    'middleClassCode': 'hiroshima',
+    'smallClassCode': 'hiroshima',
+    'checkinDate': toda,
+    'checkoutDate': tomorrow,
+    'adultNum': ad_list[0],
+    'squeezeCondition': 'breakfast',
+    'sort': '+roomCharge',
+    'applicationId': APP_ID
+}
+
+res2 = requests.get(REQUEST_URL, params2)
+result2 = res2.json()
+
+hotel_info4 = result2['hotels'][0]['hotel'][0]['hotelBasicInfo']
+hotel_info5 = result2['hotels'][0]['hotel'][1]['roomInfo'][0]['roomBasicInfo']
+hotel_info6 = result2['hotels'][0]['hotel'][1]['roomInfo'][1]['dailyCharge']
+
+df4 = pd.DataFrame()
+hotels4 = result2['hotels']
+
+for i, hotel4 in enumerate(hotels4):   
+    hotel_info4 = hotel4['hotel'][0]['hotelBasicInfo']
+    _df4 = pd.DataFrame(hotel_info4, index=[i])
+    df4 = df4.append(_df4)
+    
+df4[['hotelNo', 'hotelName','reviewCount','reviewAverage']]
+
+df5 = pd.DataFrame()
+hotels5 = result2['hotels']
+
+for i, hotel5 in enumerate(hotels5):   
+    hotel_info5 = hotel5['hotel'][1]['roomInfo'][0]['roomBasicInfo']
+    _df5 = pd.DataFrame(hotel_info5, index=[i])
+    df5 = df5.append(_df5)
+    
+df5[['roomName', 'planId', 'planName','withBreakfastFlag',
+       'breakfastSelectFlag', 'reserveUrl', 'salesformFlag']]
+
+df6 = pd.DataFrame()
+hotels6 = result2['hotels']
+
+for i, hotel6 in enumerate(hotels6):   
+    hotel_info6 = hotel6['hotel'][1]['roomInfo'][1]['dailyCharge']
+    _df6 = pd.DataFrame(hotel_info6, index=[i])
+    df6 = df6.append(_df6)
+
+df_concat_multi2 = pd.concat([df4, df5, df6],axis=1)
+
+dfcm2 = df_concat_multi2[['hotelName','planListUrl',
+       'address2', 'telephoneNo', 'faxNo', 'access','reviewCount', 'reviewAverage',
+       'roomClass', 'roomName','planName',
+       'pointRate','withBreakfastFlag',
+       'breakfastSelectFlag','salesformFlag',
+       'stayDate', 'rakutenCharge', 'total', 'chargeFlag']]
+
+params3 = {
+    'format': 'json',
+    'page': page_list[2],
+    'largeClassCode': 'japan',
+    'middleClassCode': 'hiroshima',
+    'smallClassCode': 'hiroshima',
+    'checkinDate': toda,
+    'checkoutDate': tomorrow,
+    'adultNum': ad_list[0],
+    'squeezeCondition': 'breakfast',
+    'sort': '+roomCharge',
+    'applicationId': APP_ID
+}
+
+res3 = requests.get(REQUEST_URL, params3)
+result3 = res3.json()
+
+hotel_info7 = result3['hotels'][0]['hotel'][0]['hotelBasicInfo']
+hotel_info8 = result3['hotels'][0]['hotel'][1]['roomInfo'][0]['roomBasicInfo']
+hotel_info9 = result3['hotels'][0]['hotel'][1]['roomInfo'][1]['dailyCharge']
+
+df7 = pd.DataFrame()
+hotels7 = result3['hotels']
+
+for i, hotel7 in enumerate(hotels7):   
+    hotel_info7 = hotel7['hotel'][0]['hotelBasicInfo']
+    _df7 = pd.DataFrame(hotel_info7, index=[i])
+    df7 = df7.append(_df7)
+    
+df7[['hotelNo', 'hotelName','reviewCount','reviewAverage']]
+
+df8 = pd.DataFrame()
+hotels8 = result3['hotels']
+
+for i, hotel8 in enumerate(hotels8):   
+    hotel_info8 = hotel8['hotel'][1]['roomInfo'][0]['roomBasicInfo']
+    _df8 = pd.DataFrame(hotel_info8, index=[i])
+    df8 = df8.append(_df8)
+    
+df8[['roomName', 'planId', 'planName','withBreakfastFlag',
+       'breakfastSelectFlag', 'reserveUrl', 'salesformFlag']]
+
+df9 = pd.DataFrame()
+hotels9 = result3['hotels']
+
+for i, hotel9 in enumerate(hotels9):   
+    hotel_info9 = hotel9['hotel'][1]['roomInfo'][1]['dailyCharge']
+    _df9 = pd.DataFrame(hotel_info9, index=[i])
+    df9 = df9.append(_df9)
+
+
+df_concat_multi3 = pd.concat([df7, df8, df9],axis=1)
+
+dfcm3 = df_concat_multi3[['hotelName','planListUrl',
+       'address2', 'telephoneNo', 'faxNo', 'access','reviewCount', 'reviewAverage',
+       'roomClass', 'roomName','planName',
+       'pointRate','withBreakfastFlag',
+       'breakfastSelectFlag','salesformFlag',
+       'stayDate', 'rakutenCharge', 'total', 'chargeFlag']]
+
+purchase12 = dfcm.append(dfcm2, ignore_index=True)
+
+purchase13 = purchase12.append(dfcm3, ignore_index=True)
+
+purchase13.to_csv(r'C:/Users/Owner/OneDrive/楽天料金データ/データ/楽天最新データ.csv',encoding='utf_8_sig',index=False)
+
+import csv
+import os
+import datetime
+
+corona_col = list([purchase13.columns.tolist()])
+corona_list = corona_col+ purchase13.values.tolist()
+
+#今日の日付を取り出し
+now = datetime.datetime.today()
+date = str(now.strftime("%Y%m%d"))
+date2 = '楽天最新データ'
+path = r'C:/Users/Owner/OneDrive/楽天料金データ/データ/'
+
+#ファイルの内容を表す語句と、バージョンを指定
+utf_8_file_name = path + date + date2 + '.csv'
+print(utf_8_file_name)
+
+f = open(utf_8_file_name,mode="a",newline="",encoding='utf-8-sig')
+
+writer = csv.writer(f)
+for data11 in corona_list:
+    writer.writerow(data11)
